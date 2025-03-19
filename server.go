@@ -8,6 +8,7 @@ import (
 	"time"
 	"os/exec"
 	"strconv"
+	"log"
 )
 
 //////// SETTINGS ///////
@@ -20,7 +21,11 @@ var wallpapers []string
 var curr_wallpaper string
 var last_time time.Time
 
-func check(e error) {if e != nil {panic(e)}}
+func check(e error) {
+	if e != nil {
+		log.Println(e)
+	}
+}
 
 func get_color_ref() map[string][]int {
 	dat, err := os.ReadFile("/Users/river/.config/scripts/color_reference.txt")
@@ -58,11 +63,15 @@ func current_wallpaper() string {
 	// RUNTIME: ~270ms, less File I/O than set_wallpaper
 }
 
-func set_wallpaper(wallpaper string) {
+func set_wallpaper(wallpaper string) error {
 	_, err := exec.Command("osascript", "-e", "tell app \"finder\" to set desktop picture to POSIX file \""+wallpaper+"\"").Output()
-	check(err)
+	if err != nil {
+		return err
+	}
+	return nil
 	// RUNTIME ~270ms
 }
+
 func get_wallpapers() []string {
 	files, err := os.ReadDir("/Users/river/.config/assets/wallpapers")
 	check(err)
@@ -118,7 +127,10 @@ func rotate_wallpaper() {
 		change_wallpaper()
 	}
     if current_wallpaper() != curr_wallpaper {
-		set_wallpaper(curr_wallpaper)
+		err := set_wallpaper(curr_wallpaper)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -136,7 +148,12 @@ func handle_changed(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle_rotate(w http.ResponseWriter, r *http.Request) {
-	rotate_wallpaper()
+	err := rotate_wallpaper()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "OK\n\r")
 }
 
 func handle_page(w http.ResponseWriter, r *http.Request) {
@@ -169,4 +186,3 @@ func main() {
 	err := http.ListenAndServe(":6969", nil)
 	fmt.Println(err)
 }
-
