@@ -144,16 +144,12 @@ func change_wallpaper() {
 
 func handle_changed(w http.ResponseWriter, r *http.Request) {
 	change_wallpaper()
-	fmt.Fprintf(w, "OK\n\r")
+	fmt.Fprintf(w, "")
 }
 
 func handle_rotate(w http.ResponseWriter, r *http.Request) {
-	err := rotate_wallpaper()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	fmt.Fprintf(w, "OK\n\r")
+    rotate_wallpaper()
+	fmt.Fprintf(w, "")
 }
 
 func handle_page(w http.ResponseWriter, r *http.Request) {
