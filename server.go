@@ -8,7 +8,7 @@ import (
 	"time"
 	"os/exec"
 	"strconv"
-	"log"
+	_ "log"
 )
 
 //////// SETTINGS ///////
@@ -23,7 +23,8 @@ var last_time time.Time
 
 func check(e error) {
 	if e != nil {
-		log.Println(e)
+		// Ignore
+		// panic(e)
 	}
 }
 
@@ -129,7 +130,7 @@ func rotate_wallpaper() {
     if current_wallpaper() != curr_wallpaper {
 		err := set_wallpaper(curr_wallpaper)
 		if err != nil {
-			log.Println(err)
+			// Ignore
 		}
 	}
 }
@@ -180,5 +181,5 @@ func main() {
 	http.HandleFunc("/rotate", handle_rotate)
 	http.HandleFunc("/page", handle_page)
 	err := http.ListenAndServe(":6969", nil)
-	fmt.Println(err)
+	_ = err
 }
